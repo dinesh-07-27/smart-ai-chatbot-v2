@@ -1,0 +1,26 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.log
+
+# Node.js
+node_modules/
+build/
+dist/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+
+# ChromaDB
+backend/chroma_db/
+"screenshots/*.mp4" 
+screenshots/*.mp4 
+screenshots/*.mp4 

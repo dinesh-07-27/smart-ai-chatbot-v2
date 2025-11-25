@@ -1,0 +1,26 @@
+How do I reset my password?:To reset your password, go to Settings → Account → Reset Password. You'll receive an email with a reset link. If you don't receive an email within 5 minutes, check your spam folder.
+What payment methods do you accept?:We accept major credit/debit cards (Visa, MasterCard, Amex) and UPI/NetBanking for payments in India.
+How do I track my order?:Open Orders → Select order → Track. You can also provide your order number and we will fetch the latest status.
+Can I change my shipping address after ordering?:Address changes are possible within 2 hours of placing the order. Contact support with your order ID for faster assistance.
+How do refunds work?:Refunds are processed to the original payment method within 5–7 business days after approval.
+How do I cancel my order?:You can cancel orders within 1 hour of placing them from the Orders page. If the order is already shipped, contact support for return instructions.
+What is the return policy for damaged items?:If your item arrives damaged, contact support within 7 days with photos and order ID. We will initiate return or replacement and process refunds after inspection.
+How do I change my account email?:Go to Settings → Account → Email → Change Email. We will send a confirmation link to the new email to verify the change.
+How do I change my phone number?:In Settings → Account → Phone, enter the new number and verify with the OTP sent to that number.
+How long does shipping take?:Standard shipping: 5–7 business days. Express shipping: 1–3 business days (availability depends on location).
+How can I get a tax invoice?:Invoices are available under Orders → Invoice. You can download PDF invoices for completed purchases.
+What should I do if I forgot my login details?:Use 'Forgot Password' on the login page to receive reset instructions by email. If you can't access the registered email, contact support with order proof.
+How do subscription billing cycles work?:Subscriptions auto-renew on the chosen frequency. You will be charged at the start of each billing period; cancel anytime before renewal to avoid charges.
+How can I update my billing information?:Update cards or bank details under Account → Billing. Changes take effect on the next billing cycle.
+Do you ship internationally?:We currently ship to selected countries. Check the shipping section at checkout for available countries and rates.
+How do I apply a promo code?:Enter the promo code at checkout in the 'Apply Promo' field. Only one promo code can be applied per order unless stated otherwise.
+How can I contact customer support?:You can contact support via Support → Contact Us (email), or call our helpline during business hours. Provide your order ID for faster assistance.
+What is the warranty on products?:Warranty varies by product. Check the product page for warranty details; for warranty claims, contact support with proof of purchase.
+Can I change or cancel a subscription?:Yes — go to Subscriptions in your account to pause, change, or cancel. Changes apply from the next billing cycle.
+How do I return an item for exchange?:Open a return request in Orders, choose 'Exchange', ship the item per instructions, and we will dispatch the replacement after receiving the original.
+How do I report fraudulent charges?:Contact support immediately with transaction details. We will investigate and liaise with payment providers for chargebacks if necessary.
+How is my personal data used?:We use personal data to process orders and improve services. See our Privacy Policy for details on storage, sharing, and deletion requests.
+How do I delete my account?:Go to Settings → Account → Delete Account. This will remove personal data per our retention policy; some records (invoices) are retained for legal reasons.
+What if I receive the wrong item?:Contact support with photos and order ID within 7 days. We'll arrange pickup and either replace or refund the order as appropriate.
+Can I request expedited processing for returns?:Yes — contact support with order ID and reason; expedited returns may have a fee depending on service selected.
+How do I leave feedback or rate a product?:After delivery, go to Orders → Rate Product or visit the product page to submit a review and rating.
