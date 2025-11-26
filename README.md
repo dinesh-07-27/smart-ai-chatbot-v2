@@ -1,61 +1,97 @@
 # 🤖 Smart AI Customer Support Chatbot
 
-A **full-stack AI-powered chatbot** built with **FastAPI**, **React**, and **Llama2 (via Ollama)**.  
-It uses **RAG (Retrieval-Augmented Generation)** to fetch answers from a FAQ knowledge base and deliver context-aware responses.
+A full-stack AI customer support chatbot built using FastAPI, React, and Llama 2 (via Ollama).  
+It uses RAG (Retrieval-Augmented Generation) with FAISS to retrieve relevant FAQ answers and generate context-aware responses.
 
 ---
 
-## 🚀 Key Features
-- AI-powered conversational responses using **Llama2**
-- **RAG-powered FAQ retrieval** from `faq.txt`
-- **FastAPI backend** with `/chat` API endpoint
-- **React frontend** with real-time chat UI
-- **SQLite + ChromaDB** for chat history and embeddings
-- Easy to extend with PDFs, docs, or web sources
+## 🚀 Features
+• Intelligent chatbot powered by Llama 2  
+• RAG-based answer retrieval from faq.txt  
+• FAISS semantic vector search  
+• Session-aware memory for conversations  
+• Automatic escalation for negative or urgent messages  
+• Full-stack web app — FastAPI + React  
+• Local vector store inside backend/faiss_db/
 
 ---
 
-## 🛠 Tech Stack
-- **Backend**: FastAPI (Python)
-- **Frontend**: React (JavaScript)
-- **Vector DB**: ChromaDB
-- **Database**: SQLite
-- **AI Model**: Llama2 via [Ollama](https://ollama.ai)
+## 🏗 Project Structure
+
+| Folder | Purpose |
+|--------|---------|
+| backend/ | FastAPI server, inference logic, FAISS index |
+| frontend/ | React chat UI |
+| bench_chat.py | Prompt benchmarking |
+| faiss_db/ | Vector database generated from FAQ |
+| screenshots/ | UI demonstration images |
+
+📌 Screenshot:  
+![Project Structure](screenshots/project_structure.png)
 
 ---
 
-## ⚡ Run Locally
+## ⚙️ Setup Instructions
 
-```bash
-# 1️⃣ Clone the repo
-git clone https://github.com/dinesh-07-27/smart-ai-chatbot.git
-cd smart-ai-chatbot
+🔹 1️⃣ Clone the Repository  
+git clone https://github.com/dinesh-07-27/smart-ai-chatbot-v2.git  
+cd smart-ai-chatbot-v2
 
-# 2️⃣ Backend
-cd backend
-python -m venv venv
-venv\Scripts\activate       # Windows
-pip install -r requirements.txt
-python ingest.py            # Load FAQ into ChromaDB
+---
+
+🔹 2️⃣ Backend Setup (FastAPI + FAISS + Ollama)  
+cd backend  
+python -m venv venv  
+venv\Scripts\activate   (Windows)  
+pip install -r requirements.txt  
+python ingest.py        (builds FAISS index)  
 uvicorn main:app --reload --port 8000
 
-# 3️⃣ Frontend
-cd ../frontend
-npm install
-npm start
+Backend will run at: http://127.0.0.1:8000  
 
-# 4️⃣ Open in browser
-http://localhost:3000
-
-## Screenshots
-
-### Chat UI
-![Chat UI](screenshots/chat-ui.png)
-
-### Bot Answering
-![Bot Answering](screenshots/bot-answering.png)
-
-### Backend Running
-![Backend Running](screenshots/backend-running.png)
+📌 Screenshot:  
+![Backend](screenshots/backend.png)
 
 ---
+
+🔹 3️⃣ Frontend Setup (React)  
+cd ../frontend  
+npm install  
+npm start
+
+Frontend will run at: http://localhost:3000  
+
+📌 Screenshot:  
+![Frontend](screenshots/frontend.png)
+
+---
+
+## 🧩 Live Chat Demo
+📌 Screenshot:  
+![Chat UI](screenshots/chat_UI.png)
+
+---
+
+## 📚 FAQ Retrieval Example
+📌 Screenshot:  
+![FAQ](screenshots/faq.png)
+
+---
+
+## 🎥 Demo Video
+🔗 Full demo video:  
+https://drive.google.com/file/d/1xMzJXdvkgMUPZNjrQ9M8wWF4Cad2fuJZ/view?usp=sharing
+
+---
+
+## 🔮 Future Improvements
+• Authentication with user chat history  
+• RAG expansion to PDFs and websites  
+• Deployment using Docker on Railway / Render  
+• Admin panel to manage FAQs in realtime
+
+---
+
+## 🙌 Credits
+Built with: FastAPI, React, FAISS, Ollama (Llama 2), Python & JavaScript  
+Developed with ❤️ for seamless AI-powered customer support
