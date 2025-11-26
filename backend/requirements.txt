@@ -3,3 +3,5 @@ uvicorn
 chromadb
 requests
 sentence-transformers
+google-genai
+faiss-cpu

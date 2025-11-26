@@ -1,14 +1,13 @@
 """
 FAISS-backed FastAPI main for your smart-ai-chatbot.
 Replaces Chroma retrieval with FAISS ANN search using sentence-transformers embeddings.
-Keeps Ollama LLM generation unchanged from your original repo.
+Now uses Gemini (google-genai) for LLM generation instead of Ollama.
 """
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
-import requests
 import os
 import uuid
 from difflib import SequenceMatcher
@@ -26,6 +25,9 @@ import numpy as np
 import faiss
 from sentence_transformers import SentenceTransformer
 
+# Gemini (LLM)
+from google import genai
+
 # Optional Redis cache
 try:
     import redis
@@ -33,13 +35,23 @@ try:
 except Exception:
     REDIS_AVAILABLE = False
 
+# ------------------------------
 # Configs - tweak as needed
-OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434/api/generate")
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama2")
+# ------------------------------
+
 FAISS_DIR = os.getenv("FAISS_DIR", "./faiss_db")
 FAISS_INDEX_PATH = os.path.join(FAISS_DIR, "faiss_index.index")
 FAISS_META_PATH = os.path.join(FAISS_DIR, "faiss_meta.pkl")
 EMBED_MODEL_NAME = os.getenv("EMBED_MODEL_NAME", "all-MiniLM-L6-v2")  # sentence-transformers
+
+# Gemini config
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+
+if not GEMINI_API_KEY:
+    print("WARNING: GEMINI_API_KEY is not set. LLM calls will fail until you set it.")
+
+gemini_client = genai.Client(api_key=GEMINI_API_KEY) if GEMINI_API_KEY else None
 
 # FastAPI setup
 app = FastAPI()
@@ -69,33 +81,30 @@ FAISS_INDEX = None            # faiss.Index
 FAISS_META: List[Dict] = []   # list of dicts { "id": id, "text": ..., "meta": {...} }
 
 # ------------------------------
-# Utility: Ollama caller (kept from your original code)
+# Utility: Gemini caller (replaces Ollama)
 # ------------------------------
-def call_ollama(prompt: str, model: str = OLLAMA_MODEL) -> str:
+
+def call_gemini(prompt: str, model: str = GEMINI_MODEL) -> str:
+    """
+    Calls Gemini with the given prompt and returns the response text.
+    """
     try:
-        payload = {"model": model, "prompt": prompt, "stream": False}
-        r = requests.post(OLLAMA_URL, json=payload, timeout=120)
-        r.raise_for_status()
-        j = r.json()
-        # attempt multiple common shapes
-        if isinstance(j, dict):
-            if "response" in j:
-                return j["response"]
-            if "generation" in j and isinstance(j["generation"], dict) and "content" in j["generation"]:
-                return j["generation"]["content"]
-            if "generations" in j and isinstance(j["generations"], list) and len(j["generations"]) > 0:
-                gen = j["generations"][0]
-                if isinstance(gen, dict):
-                    return gen.get("text") or gen.get("content") or str(gen)
-            if "message" in j and isinstance(j["message"], dict) and "content" in j["message"]:
-                return j["message"]["content"]
-        return str(j)
+        if gemini_client is None:
+            return "Gemini error: GEMINI_API_KEY is not configured on the server."
+
+        resp = gemini_client.models.generate_content(
+            model=model,
+            contents=prompt,
+        )
+        # google-genai provides .text to get combined text output
+        return resp.text
     except Exception as e:
-        return f"Ollama error: {e}"
+        return f"Gemini error: {e}"
 
 # ------------------------------
 # FAISS helpers: build / load / search
 # ------------------------------
+
 def ensure_faiss_dir():
     if not os.path.exists(FAISS_DIR):
         os.makedirs(FAISS_DIR, exist_ok=True)
@@ -171,6 +180,7 @@ def faiss_search(query: str, k: int = 5):
 # ------------------------------
 # Startup: load embedding model, load or build FAISS index, setup Redis
 # ------------------------------
+
 @app.on_event("startup")
 def startup_event():
     global EMBED_MODEL, FAISS_INDEX, FAISS_META, REDIS_CLIENT
@@ -201,6 +211,7 @@ def startup_event():
 # ------------------------------
 # Small FAQ loader for exact matches (keeps your old FAQ behavior)
 # ------------------------------
+
 faq_path = os.path.join("faq.txt")
 faq_dict = {}
 faq_variants = {}
@@ -216,6 +227,7 @@ if os.path.exists(faq_path):
 # ------------------------------
 # Helper: decide escalation (copied logic from your original)
 # ------------------------------
+
 def should_escalate_legacy(user_q: str):
     # very simple heuristic - keep original behavior
     s = SequenceMatcher(None, user_q.lower(), "refund").ratio()
@@ -226,6 +238,7 @@ def should_escalate_legacy(user_q: str):
 # ------------------------------
 # New escalation heuristic (keyword + legacy hybrid)
 # ------------------------------
+
 ESCALATION_KEYWORDS = [
     "urgent",
     "angry",
@@ -261,8 +274,9 @@ def determine_escalation(user_q: str) -> Dict[str, Any]:
     return {"escalate": escalate, "reason": reason, "matched_keywords": matched}
 
 # ------------------------------
-# Chat endpoint (async) - uses threadpool for FAISS and Ollama calls
+# Chat endpoint (async) - uses threadpool for FAISS and Gemini calls
 # ------------------------------
+
 @app.post("/chat")
 async def chat(req: ChatRequest):
     query = (req.text or "").strip()
@@ -324,15 +338,37 @@ async def chat(req: ChatRequest):
 
     # 4) Build prompt (RAG)
     if top_text:
-        prompt = f"Use the context below to answer.\n\nContext:\n{top_text}\n\nQ: {query}\nA:"
+        prompt = f"""
+        You are a helpful customer support assistant.
+
+        You are given some context from the company's FAQ database. 
+        Use it when it is relevant to the user's question. 
+        If the context does NOT contain the answer, you can still answer using your own general knowledge.
+
+        Context:
+        {top_text}
+
+        User question:
+        {query}
+
+        Answer in a clear and friendly way:
+        """.strip()
     else:
-        prompt = f"You are a helpful support assistant. Answer clearly and politely.\n\nUser: {query}\nAnswer:"
+        prompt = f"""
+        You are a helpful support assistant. Answer clearly and politely.
 
-    # 5) Call Ollama in threadpool (HTTP blocking)
-    def call_ollama_sync(p):
-        return call_ollama(p)
+        User question:
+        {query}
 
-    answer = await loop.run_in_executor(EXECUTOR, call_ollama_sync, prompt)
+        Answer:
+        """.strip()
+
+
+    # 5) Call Gemini in threadpool (blocking)
+    def call_gemini_sync(p):
+        return call_gemini(p)
+
+    answer = await loop.run_in_executor(EXECUTOR, call_gemini_sync, prompt)
     t2 = time.time()
 
     # 6) Save to session memory
@@ -372,6 +408,7 @@ async def chat(req: ChatRequest):
 # ------------------------------
 # Simple health endpoint
 # ------------------------------
+
 @app.get("/health")
 def health():
     idx_info = {"faiss_loaded": FAISS_INDEX is not None, "faiss_total": FAISS_INDEX.ntotal if FAISS_INDEX is not None else 0}
@@ -380,6 +417,7 @@ def health():
 # ------------------------------
 # Optional: simple endpoint to rebuild index from faq.txt (small demo)
 # ------------------------------
+
 @app.post("/rebuild_index")
 def rebuild_index_from_faq():
     """
