@@ -1,6 +1,10 @@
 // frontend/src/App.js
 import React, { useState, useRef, useEffect } from "react";
 
+// 👇 NEW: base URL for backend – env var in deploy, localhost in dev
+const API_BASE =
+  process.env.REACT_APP_API_BASE || "http://127.0.0.1:8000";
+
 function App() {
   const [messages, setMessages] = useState([]); // {sender, text, meta}
   const [input, setInput] = useState("");
@@ -20,7 +24,7 @@ function App() {
 
     setLoading(true);
     try {
-      const res = await fetch("http://127.0.0.1:8000/chat", {
+      const res = await fetch(`${API_BASE}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         // Backend expects { text: ... }
@@ -51,7 +55,11 @@ function App() {
     } catch (err) {
       setMessages((prev) => [
         ...prev,
-        { sender: "Bot", text: "Error: " + (err.message || err), meta: { error: true } },
+        {
+          sender: "Bot",
+          text: "Error: " + (err.message || err),
+          meta: { error: true },
+        },
       ]);
     } finally {
       setLoading(false);
@@ -66,7 +74,13 @@ function App() {
   };
 
   return (
-    <div style={{ maxWidth: 760, margin: "18px auto", fontFamily: "Arial, sans-serif" }}>
+    <div
+      style={{
+        maxWidth: 760,
+        margin: "18px auto",
+        fontFamily: "Arial, sans-serif",
+      }}
+    >
       <h2 style={{ textAlign: "center" }}>Smart AI Customer Support Bot</h2>
 
       <div
@@ -95,21 +109,29 @@ function App() {
             <div style={{ fontSize: 13, color: "#333" }}>
               <strong>{m.sender}:</strong>
             </div>
-            <div style={{ marginTop: 6, whiteSpace: "pre-wrap" }}>{m.text}</div>
+            <div style={{ marginTop: 6, whiteSpace: "pre-wrap" }}>
+              {m.text}
+            </div>
 
             {/* metadata display */}
             {m.meta && (
               <div style={{ marginTop: 6, fontSize: 12, color: "#666" }}>
-                {m.meta.source && <span style={{ marginRight: 10 }}>📚 {m.meta.source}</span>}
+                {m.meta.source && (
+                  <span style={{ marginRight: 10 }}>📚 {m.meta.source}</span>
+                )}
                 {m.meta.cached !== undefined && m.meta.cached === true && (
                   <span style={{ marginRight: 10 }}>⚡ cached</span>
                 )}
                 {m.meta.timing_ms && (
                   <span>
-                    ⏱ search: {m.meta.timing_ms.search ?? "-"} ms • gen: {m.meta.timing_ms.generate ?? "-"} ms • total: {m.meta.timing_ms.total ?? "-"} ms
+                    ⏱ search: {m.meta.timing_ms.search ?? "-"} ms • gen:{" "}
+                    {m.meta.timing_ms.generate ?? "-"} ms • total:{" "}
+                    {m.meta.timing_ms.total ?? "-"} ms
                   </span>
                 )}
-                {m.meta.error && <span style={{ color: "red", marginLeft: 8 }}>Error</span>}
+                {m.meta.error && (
+                  <span style={{ color: "red", marginLeft: 8 }}>Error</span>
+                )}
               </div>
             )}
           </div>
